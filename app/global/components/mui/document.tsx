@@ -23,13 +23,20 @@ interface DocumentProps {
   title?: string;
 }
 
+interface EmotionSheetWithInsertTag {
+  _insertTag: (tag: HTMLStyleElement) => void;
+  container: HTMLElement;
+  flush: () => void;
+  tags: HTMLStyleElement[];
+}
+
 export const MuiDocument = withEmotionCache(({children, title}: DocumentProps, emotionCache) => {
   const clientStyleData = React.useContext(EmotionStyleContext);
   const locale = useLoaderData<typeof RootClientLoader>();
 
   useChangeLanguage(locale?.lang);
 
-  // Only executed on client
+  // Only executed on a client
   useEnhancedEffect(() => {
     // re-link sheet container
     emotionCache.sheet.container = document.head;
@@ -37,7 +44,7 @@ export const MuiDocument = withEmotionCache(({children, title}: DocumentProps, e
     const tags = emotionCache.sheet.tags;
     emotionCache.sheet.flush();
     tags.forEach(tag => {
-      (emotionCache.sheet as any)._insertTag(tag);
+      (emotionCache.sheet as unknown as EmotionSheetWithInsertTag)._insertTag(tag);
     });
     // reset cache to reapply global styles
     clientStyleData.reset();
@@ -60,6 +67,7 @@ export const MuiDocument = withEmotionCache(({children, title}: DocumentProps, e
           href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
         />
         <meta name="emotion-insertion-point" content="emotion-insertion-point" />
+        <title></title>
       </head>
       <body>
         <GlobalStyles

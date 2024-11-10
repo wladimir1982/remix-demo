@@ -1,4 +1,5 @@
 import {LinkProps} from '@remix-run/react';
+import React from 'react';
 
 import {Link as MuiLink, LinkProps as MuiLinkProps} from '@mui/material';
 
@@ -15,8 +16,7 @@ export const AppLink: React.FC<MuiAppI18nLinkProps> = ({
   ...props
 }: MuiAppI18nLinkProps) => {
   return (
-    // @ts-expect-error - `to` is not allowed in MuiLinkProps
-    <MuiLink viewTransition={viewTransition} LinkComponent={I18nLink} href={props.to} {...props}>
+    <MuiLink component={I18nLink} viewTransition={viewTransition} href={props.to} {...props}>
       {children}
     </MuiLink>
   );

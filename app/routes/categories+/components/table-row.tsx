@@ -1,5 +1,6 @@
 import {useTranslation} from 'react-i18next';
 import {formatRelative} from 'date-fns';
+import React from 'react';
 
 import {Box, Button, Stack, TableCell, TableRow, Typography} from '@mui/material';
 import {DeleteOutline} from '@mui/icons-material';

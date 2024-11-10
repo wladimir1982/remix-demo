@@ -1,12 +1,14 @@
 import type {MetaFunction} from '@remix-run/node';
-import {Form, redirect, useNavigate} from '@remix-run/react';
+import {Form, redirect} from '@remix-run/react';
 import {useTranslation} from 'react-i18next';
-import {useSnackbar} from 'notistack';
+import {OptionsObject, useSnackbar} from 'notistack';
 import * as yup from 'yup';
 import {useForm, FormProvider} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 
 import {useMutationSignIn} from '~/services/auth';
+
+import {useI18nNavigate} from '~/global/hooks/use-i18n-navigate';
 
 import {PageShell} from '~/global/components/page-shell';
 import {AppInputPassword} from '~/global/components/app-input-password';
@@ -40,7 +42,7 @@ export default function SignIn() {
   const {t} = useTranslation(handle.i18n);
   const {enqueueSnackbar} = useSnackbar();
   const mutate = useMutationSignIn();
-  const navigate = useNavigate();
+  const navigate = useI18nNavigate();
 
   const form = useForm({
     mode: 'onChange',
@@ -52,20 +54,21 @@ export default function SignIn() {
 
   const onSubmit = form.handleSubmit(async payload => {
     const response = await mutate.mutateAsync({payload});
+    const {errors, meta, result} = response || {};
 
-    if (response?.errors?.length) {
+    if (errors?.length) {
       enqueueSnackbar({
-        heading: response?.meta?.message,
-        messages: response?.errors,
+        heading: meta?.message,
+        messages: errors,
         variant: 'error',
-      });
-    } else if (response?.result?.accessToken?.token) {
+      } as unknown as OptionsObject);
+    } else if (result?.accessToken?.token) {
       enqueueSnackbar({
         heading: 'Signed in successfully',
-        messages: `Welcome back, ${response.result.user?.name}`,
+        messages: `Welcome back, ${result.user?.name}`,
         variant: 'success',
-      });
-      apiSaveTokens(response);
+      } as unknown as OptionsObject);
+      await apiSaveTokens(response);
       navigate('/', {replace: true, viewTransition: true});
     }
   });

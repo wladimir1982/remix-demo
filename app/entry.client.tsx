@@ -22,7 +22,7 @@ const hydrate = async () => {
   if (!i18next.isInitialized)
     await i18next
       .use(initReactI18next) // Tell i18next to use the react-i18next plugin
-      .use(LanguageDetector) // Setup a client-side language detector
+      .use(LanguageDetector) // Set up a client-side language detector
       .use(Backend) // Setup your backend
       .init({
         ...i18n, // spread the configuration
@@ -31,7 +31,7 @@ const hydrate = async () => {
         backend: {loadPath: '/locales/{{lng}}/{{ns}}.json'},
         detection: {
           // Here only enable htmlTag detection, we'll detect the language only
-          // server-side with remix-i18next, by using the `<html lang>` attribute
+          // server-side with remix-i18next, by using the `<HTML lang>` attribute
           // we can communicate to the client the language detected server-side
           order: ['htmlTag'],
           // order: ["htmlTag", 'localStorage'],

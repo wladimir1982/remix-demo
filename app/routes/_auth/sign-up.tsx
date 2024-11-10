@@ -1,7 +1,7 @@
 import type {MetaFunction} from '@remix-run/node';
 import {Form, redirect} from '@remix-run/react';
 import {useTranslation} from 'react-i18next';
-import {useSnackbar} from 'notistack';
+import {OptionsObject, useSnackbar} from 'notistack';
 import * as yup from 'yup';
 import {useForm, FormProvider} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
@@ -59,20 +59,21 @@ export default function SignUp() {
 
   const onSubmit = form.handleSubmit(async payload => {
     const response = await mutate.mutateAsync({payload});
+    const {errors, meta, result} = response || {};
 
-    if (response?.errors?.length) {
+    if (errors?.length) {
       enqueueSnackbar({
-        heading: response?.meta?.message,
-        messages: response?.errors,
+        heading: meta?.message,
+        messages: errors,
         variant: 'error',
-      });
-    } else if (response?.result?.accessToken?.token) {
+      } as unknown as OptionsObject);
+    } else if (result?.accessToken?.token) {
       enqueueSnackbar({
         heading: 'Account created successfully',
-        messages: `Welcome aboard, ${response.result.user?.name}`,
+        messages: `Welcome aboard, ${result.user?.name}`,
         variant: 'success',
-      });
-      apiSaveTokens(response);
+      } as unknown as OptionsObject);
+      await apiSaveTokens(response);
       navigate('/', {replace: true, viewTransition: true});
     }
   });
