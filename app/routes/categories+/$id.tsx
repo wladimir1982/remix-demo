@@ -3,7 +3,7 @@ import {ClientLoaderFunctionArgs, Form, redirect, useLoaderData} from '@remix-ru
 import {useForm, FormProvider} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useTranslation} from 'react-i18next';
-import {OptionsObject, useSnackbar} from 'notistack';
+import {useSnackbar, VariantType} from 'notistack';
 import * as yup from 'yup';
 
 import {queryClient} from '~/services/client';
@@ -71,14 +71,19 @@ export default function CategoriesCreate() {
     const response = await mutate.mutateAsync({id: current.categoryId, payload});
     const {errors, meta, result} = response || {};
 
+    const showNotification = (message: string, variant: VariantType) => {
+      enqueueSnackbar(message, {variant});
+    };
+
     if (errors?.length) {
-      enqueueSnackbar({
-        heading: meta?.message,
-        messages: errors,
-        variant: 'error',
-      } as unknown as OptionsObject);
+      const errorMessage = meta?.message || 'An error occurred';
+      const combinedErrors = errors.join(', ');
+
+      showNotification(`${errorMessage}: ${combinedErrors}`, 'error' as VariantType);
     } else if (result?.categoryId) {
-      enqueueSnackbar({messages: meta?.message, variant: 'success'} as unknown as OptionsObject);
+      const successMessage = meta?.message || 'Category updated successfully';
+
+      showNotification(successMessage, 'success' as VariantType);
       navigate('/categories', {viewTransition: true});
     }
   });

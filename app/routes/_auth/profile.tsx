@@ -3,7 +3,7 @@ import {Form, redirect, useLoaderData} from '@remix-run/react';
 import {useForm, FormProvider} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useTranslation} from 'react-i18next';
-import {useSnackbar, OptionsObject} from 'notistack';
+import {useSnackbar, VariantType} from 'notistack';
 import * as yup from 'yup';
 
 import {queryClient} from '~/services/client';
@@ -62,17 +62,19 @@ export default function Profile() {
     const response = await mutate.mutateAsync({payload});
     const {errors, meta, result} = response || {};
 
+    const showNotification = (message: string, variant: VariantType) => {
+      enqueueSnackbar(message, {variant});
+    };
+
     if (errors?.length) {
-      enqueueSnackbar({
-        heading: meta?.message,
-        messages: errors,
-        variant: 'error',
-      } as unknown as OptionsObject);
+      const errorMessage = meta?.message || 'An error occurred';
+      const combinedErrors = errors.join(', ');
+
+      showNotification(`${errorMessage}: ${combinedErrors}`, 'error' as VariantType);
     } else if (result?.userId) {
-      enqueueSnackbar({
-        messages: 'Profile updated successfully',
-        variant: 'success',
-      } as unknown as OptionsObject);
+      const successMessage = 'Profile updated successfully';
+
+      showNotification(successMessage, 'success' as VariantType);
     }
   });
 

@@ -19,7 +19,9 @@ export const meta: MetaFunction = () => [{title: 'Remix App'}];
 
 export default function Index() {
   const {t} = useTranslation();
-  const {data} = useQueryProfile({enabled: !!window.localStorage.getItem('_at')});
+  const {data} = useQueryProfile<ApiResponse<ApiUser>>({
+    enabled: !!window.localStorage.getItem('_at'),
+  });
 
   return (
     <Grid2
@@ -34,9 +36,7 @@ export default function Index() {
         {t('hello')}
       </Typography>
 
-      <AppLink
-        to={(data as unknown as ApiResponse<ApiUser>)?.result?.userId ? '/products' : '/sign-in'}
-      >
+      <AppLink to={data?.result?.userId ? '/products' : '/sign-in'}>
         <Typography variant="h5">Get Started</Typography>
       </AppLink>
     </Grid2>

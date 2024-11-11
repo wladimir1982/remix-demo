@@ -1,5 +1,5 @@
 import {useTranslation} from 'react-i18next';
-import {OptionsObject, useSnackbar} from 'notistack';
+import {useSnackbar, VariantType} from 'notistack';
 
 import {Paper, Table, TableBody, TableContainer} from '@mui/material';
 
@@ -32,13 +32,13 @@ export const CategoriesTable = ({data, isLoading}: {data?: ApiCategory[]; isLoad
         onSuccess: async result => {
           result?.meta?.message &&
             enqueueSnackbar(result?.meta?.message, {
-              variant: 'success',
-            } as unknown as OptionsObject);
+              variant: 'success' as VariantType,
+            });
         },
         onError: err => {
           enqueueSnackbar(err?.message || 'unknown error', {
-            variant: 'error',
-          } as unknown as OptionsObject);
+            variant: 'error' as VariantType,
+          });
         },
       },
     );
