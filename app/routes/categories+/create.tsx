@@ -1,21 +1,16 @@
 import type {MetaFunction} from '@remix-run/node';
 import {Form, redirect} from '@remix-run/react';
 import {yupResolver} from '@hookform/resolvers/yup';
-import {useMutation} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
-import {useSnackbar} from 'notistack';
+import {useSnackbar, VariantType} from 'notistack';
 import * as yup from 'yup';
 import {useForm, FormProvider} from 'react-hook-form';
-
-import {Box} from '@mui/material';
 
 import {useMutationCategoriesCreate} from '~/services/categories';
 
 import {useI18nNavigate} from '~/global/hooks/use-i18n-navigate';
 
-import {AppInputSwitch} from '~/global/components/app-input-switch';
 import {PageShell} from '~/global/components/page-shell';
-import {AppInput} from '~/global/components/app-input';
 
 import {CategoriesForm} from './components/form';
 
@@ -64,15 +59,21 @@ export default function CategoriesCreate() {
 
   const onSubmit = form.handleSubmit(async payload => {
     const response = await mutate.mutateAsync({payload});
+    const {errors, meta, result} = response || {};
 
-    if (response?.errors?.length) {
-      enqueueSnackbar({
-        heading: response?.meta?.message,
-        messages: response?.errors,
-        variant: 'error',
-      });
-    } else if (response?.result?.categoryId) {
-      enqueueSnackbar({messages: response.meta?.message, variant: 'success'});
+    const showNotification = (message: string, variant: VariantType) => {
+      enqueueSnackbar(message, {variant});
+    };
+
+    if (errors?.length) {
+      const errorMessage = meta?.message || 'An error occurred';
+      const combinedErrors = errors.join(', ');
+
+      showNotification(`${errorMessage}: ${combinedErrors}`, 'error' as VariantType);
+    } else if (result?.categoryId) {
+      const successMessage = meta?.message || 'Category created successfully.';
+
+      showNotification(successMessage, 'success' as VariantType);
       navigate('/categories', {viewTransition: true});
     }
   });

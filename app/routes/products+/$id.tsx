@@ -2,7 +2,7 @@ import type {MetaFunction} from '@remix-run/node';
 import {ClientLoaderFunctionArgs, Form, redirect, useLoaderData} from '@remix-run/react';
 import {useForm, FormProvider} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
-import {useSnackbar} from 'notistack';
+import {useSnackbar, VariantType} from 'notistack';
 import * as yup from 'yup';
 import {useTranslation} from 'react-i18next';
 
@@ -79,15 +79,20 @@ export default function ProductsCreate() {
 
   const onSubmit = form.handleSubmit(async payload => {
     const response = await mutate.mutateAsync({id: item.productId, payload});
+    const {errors, meta, result} = response || {};
 
-    if (response?.errors?.length) {
-      enqueueSnackbar({
-        heading: response?.meta?.message,
-        messages: response?.errors,
-        variant: 'error',
-      });
-    } else if (response?.result?.productId) {
-      enqueueSnackbar({messages: response.meta?.message, variant: 'success'});
+    const showNotification = (message: string, variant: VariantType) => {
+      enqueueSnackbar(message, {variant});
+    };
+
+    if (errors?.length) {
+      const errorMessage = errors.join(', ') || meta?.message || 'An error occurred';
+
+      showNotification(errorMessage, 'error' as VariantType);
+    } else if (result?.productId) {
+      const successMessage = meta?.message || 'Product updated successfully';
+
+      showNotification(successMessage, 'success' as VariantType);
       navigate('/products', {viewTransition: true});
     }
   });

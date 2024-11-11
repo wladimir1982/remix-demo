@@ -34,11 +34,11 @@ const handleRequest = async (
 
   await instance
     .use(initReactI18next) // Tell our instance to use react-i18next
-    .use(Backend) // Setup our backend
+    .use(Backend) // Set up our backend
     .init({
       ...i18n, // spread the configuration
       lng, // The locale we detected above
-      ns, // The namespaces the routes about to render wants to use
+      ns, // The namespaces the routes about to render want to use
       backend: {loadPath: resolve('./public/locales/{{lng}}/{{ns}}.json')},
     });
 
@@ -80,7 +80,7 @@ const handleBotRequest = (
           responseHeaders.set('Content-Type', 'text/html');
 
           resolve(
-            new Response(bodyWithStyles as any, {
+            new Response(bodyWithStyles as unknown as BodyInit, {
               headers: responseHeaders,
               status: didError ? 500 : responseStatusCode,
             }),
@@ -133,7 +133,7 @@ const handleBrowserRequest = (
           responseHeaders.set('Content-Type', 'text/html');
 
           resolve(
-            new Response(bodyWithStyles as any, {
+            new Response(bodyWithStyles as unknown as BodyInit, {
               headers: responseHeaders,
               status: didError ? 500 : responseStatusCode,
             }),

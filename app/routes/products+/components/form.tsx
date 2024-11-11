@@ -58,6 +58,7 @@ export const ProductsForm = () => {
         variant="filled"
         sx={{flex: 1}}
         select
+        defaultValue=""
       >
         {!categories.isFetched ? (
           <MenuItem disabled>Loading categories...</MenuItem>

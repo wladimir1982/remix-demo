@@ -1,7 +1,7 @@
 import type {MetaFunction} from '@remix-run/node';
 import {Form, redirect} from '@remix-run/react';
 import {useTranslation} from 'react-i18next';
-import {useSnackbar} from 'notistack';
+import {useSnackbar, VariantType} from 'notistack';
 import * as yup from 'yup';
 import {useForm, FormProvider} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
@@ -59,20 +59,22 @@ export default function SignUp() {
 
   const onSubmit = form.handleSubmit(async payload => {
     const response = await mutate.mutateAsync({payload});
+    const {errors, meta, result} = response || {};
 
-    if (response?.errors?.length) {
-      enqueueSnackbar({
-        heading: response?.meta?.message,
-        messages: response?.errors,
-        variant: 'error',
-      });
-    } else if (response?.result?.accessToken?.token) {
-      enqueueSnackbar({
-        heading: 'Account created successfully',
-        messages: `Welcome aboard, ${response.result.user?.name}`,
-        variant: 'success',
-      });
-      apiSaveTokens(response);
+    const showNotification = (message: string, variant: VariantType) => {
+      enqueueSnackbar(message, {variant});
+    };
+
+    if (errors?.length) {
+      const errorMessage = meta?.message || 'An error occurred';
+      const combinedErrors = errors.join(', ');
+
+      showNotification(`${errorMessage}: ${combinedErrors}`, 'error' as VariantType);
+    } else if (result?.accessToken?.token) {
+      const successMessage = `Account created successfully. Welcome aboard, ${result.user?.name}`;
+
+      showNotification(successMessage, 'success' as VariantType);
+      await apiSaveTokens(response);
       navigate('/', {replace: true, viewTransition: true});
     }
   });
